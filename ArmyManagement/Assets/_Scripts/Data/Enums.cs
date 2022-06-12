@@ -7,9 +7,3 @@ public enum UnitType
     
     Count
 }
-
-public enum Army
-{
-    Top,
-    Bottom
-}

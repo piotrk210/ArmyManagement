@@ -5,64 +5,62 @@ namespace _Scripts.Slot
 {
     public class ArmyManager : MonoBehaviour
     {
-        [SerializeField] private List<Slot> armySlots = new List<Slot>();
+        public const int SlotsNumber = 6;
+        
+        [SerializeField] private readonly List<Slot> armySlots = new List<Slot>();
         [SerializeField] private Slot slotPrefab;
-        [SerializeField] public int slotsNumber = 6;
 
-        public Army army;
 
-        public void InitArmyManager(Army army)
+        public void InitArmyManager()
         {
-            this.army = army;
             CreateSlots();
         }
         
         private void CreateSlots()
         {
-            for (int i = 0; i < slotsNumber; i++)
+            for (int i = 0; i < SlotsNumber; i++)
             {
                 var slot = Instantiate(slotPrefab, transform);
-                slot.Army = army;
                 armySlots.Add(slot);
             }
         }
 
-        public void TryAddBigUnit(int index)
+        public void TryAddBigUnit(int index, bool shouldLookOnRight = true)
         {
-            Debug.Log(index);
-            Debug.Log(armySlots[index].UnitType + " " + IsAtLeastSlotFree(2));
-            if(armySlots[index].UnitType == UnitType.None && !IsAtLeastSlotFree(2)) return;
-            if(armySlots[index].UnitType == UnitType.SmallWarrior && !IsAtLeastSlotFree(1)) return;
-            if(armySlots[index].UnitType == UnitType.BigWarriorLeft) return;
+            if(armySlots[index].UnitType == UnitType.None && !IsAtLeastSlotFree(2) ||
+            armySlots[index].UnitType == UnitType.SmallWarrior && !IsAtLeastSlotFree(1) ||
+            armySlots[index].UnitType == UnitType.BigWarriorLeft) return;
             
-            SlideUnitsApart(index);
-            //jeśli na index+1 jest small to go przesuwamy/zostawiamy chyba że będzie na tak dopiero po powyższym warunku
+            SlideUnitsApart(index, shouldLookOnRight);
         }
         
         public void TryAddSmallUnit(int index)
         {
-            // if(armySlots[index].UnitType == UnitType.None && !IsAtLeastSlotFree(2)) return;
-            // if(armySlots[index].UnitType == UnitType.SmallWarrior && !IsAtLeastSlotFree(1)) return;
-            
             if(SlotManager.Slots[index].UnitType == UnitType.BigWarriorLeft) SlotManager.Slots[index + 1].SetUnit(UnitType.None);
+            if(SlotManager.Slots[index].UnitType == UnitType.BigWarriorRight) SlotManager.Slots[index - 1].SetUnit(UnitType.None);
+            
             SlotManager.Slots[index].SetUnit(UnitType.SmallWarrior);
-            //jeśli na index+1 jest small to go przesuwamy/zostawiamy chyba że będzie na tak dopiero po powyższym warunku
         }
 
 
         private void SlideUnitsApart(int index, bool shouldLookOnRight = true)
         {
-            int? freeSlotIndex = LookForFreeSlotOnRight(index);
-            
-            Debug.Log("free index " + freeSlotIndex);
-            if (freeSlotIndex != null)
+            Debug.Log(shouldLookOnRight);
+            int? freeSlotIndex;
+            if (shouldLookOnRight)
             {
-                MoveAllUnitsOnRight(index, (int)freeSlotIndex);
+                freeSlotIndex = LookForFreeSlotOnRight(index);
             
-                armySlots[index].SetUnit(UnitType.BigWarriorLeft);
-                armySlots[index+1].SetUnit(UnitType.BigWarriorRight);    
+                Debug.Log("free index " + freeSlotIndex);
+                if (freeSlotIndex != null)
+                {
+                    MoveAllUnitsOnRight(index, (int)freeSlotIndex);
+            
+                    armySlots[index].SetUnit(UnitType.BigWarriorLeft);
+                    armySlots[index+1].SetUnit(UnitType.BigWarriorRight); 
+                    return;
+                }
             }
-            else
             {
                 freeSlotIndex = LookForFreeSlotOnLeft(index);
 
@@ -74,9 +72,24 @@ namespace _Scripts.Slot
             
                     armySlots[index - 1].SetUnit(UnitType.BigWarriorLeft);
                     armySlots[index].SetUnit(UnitType.BigWarriorRight);
+                    return;
                     //select na index -1 ?
                     //armySlots[index -1].OnSelect();
                 } 
+            }
+            if (!shouldLookOnRight)
+            {
+                freeSlotIndex = LookForFreeSlotOnRight(index);
+            
+                Debug.Log("free index " + freeSlotIndex);
+                if (freeSlotIndex != null)
+                {
+                    MoveAllUnitsOnRight(index, (int)freeSlotIndex);
+            
+                    armySlots[index].SetUnit(UnitType.BigWarriorLeft);
+                    armySlots[index+1].SetUnit(UnitType.BigWarriorRight);  
+                    return;
+                }
             }
         }
 
@@ -124,16 +137,6 @@ namespace _Scripts.Slot
             }
         }
 
-        
-        public void TrySwitchUnits(int firstIndex, int secondIndex)
-        {
-            if (SlotManager.Slots[firstIndex].UnitType != SlotManager.Slots[secondIndex].UnitType)
-            {
-                
-            }
-            
-        }
-
         public bool IsAtLeastSlotFree(int freeSlotsNeeded)
         {
             int freeSlots = 0;
@@ -152,7 +155,6 @@ namespace _Scripts.Slot
                 armySlots[index - 1].SetUnit(UnitType.SmallWarrior);
             } else if (armySlots[index].UnitType == UnitType.BigWarriorRight && index >= 2)
             {
-                Debug.Log("sdalkfjlkj");
                 armySlots[index].SetUnit(UnitType.None);
                 armySlots[index - 2].SetUnit(UnitType.BigWarriorLeft);
                 armySlots[index - 1].SetUnit(UnitType.BigWarriorRight);
