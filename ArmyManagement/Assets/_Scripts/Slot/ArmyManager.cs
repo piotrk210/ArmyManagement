@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets._Scripts.Data;
 using UnityEngine;
 
 namespace _Scripts.Slot
@@ -31,27 +32,33 @@ namespace _Scripts.Slot
             armySlots[index].UnitType == UnitType.SmallWarrior && !IsAtLeastSlotFree(1) ||
             armySlots[index].UnitType == UnitType.BigWarriorLeft) return;
             
-            SlideUnitsApart(index, shouldLookOnRight);
+            SlideBigUnitApart(index, shouldLookOnRight);
         }
         
         public void TryAddSmallUnit(int index)
         {
-            if(SlotManager.Slots[index].UnitType == UnitType.BigWarriorLeft) SlotManager.Slots[index + 1].SetUnit(UnitType.None);
-            if(SlotManager.Slots[index].UnitType == UnitType.BigWarriorRight) SlotManager.Slots[index - 1].SetUnit(UnitType.None);
+            if(armySlots[index].UnitType == UnitType.BigWarriorLeft) armySlots[index + 1].SetUnit(UnitType.None);
+            if(armySlots[index].UnitType == UnitType.BigWarriorRight) armySlots[index - 1].SetUnit(UnitType.None);
             
-            SlotManager.Slots[index].SetUnit(UnitType.SmallWarrior);
+            armySlots[index].SetUnit(UnitType.SmallWarrior);
+        }
+        
+        public void TryAddNoneUnit(int index)
+        {
+            if (armySlots[index].UnitType == UnitType.BigWarriorLeft)
+            {
+                armySlots[index + 1].SetUnit(UnitType.None);
+            }
+            armySlots[index].SetUnit(UnitType.None);
         }
 
-
-        private void SlideUnitsApart(int index, bool shouldLookOnRight = true)
+        private void SlideBigUnitApart(int index, bool shouldFirstLookOnRight = true)
         {
-            Debug.Log(shouldLookOnRight);
             int? freeSlotIndex;
-            if (shouldLookOnRight)
+            if (shouldFirstLookOnRight)
             {
                 freeSlotIndex = LookForFreeSlotOnRight(index);
-            
-                Debug.Log("free index " + freeSlotIndex);
+                
                 if (freeSlotIndex != null)
                 {
                     MoveAllUnitsOnRight(index, (int)freeSlotIndex);
@@ -64,8 +71,6 @@ namespace _Scripts.Slot
             {
                 freeSlotIndex = LookForFreeSlotOnLeft(index);
 
-                Debug.Log("free index " + freeSlotIndex);
-                
                 if (freeSlotIndex != null)
                 {
                     MoveAllUnitsOnLeft(index, (int)freeSlotIndex);
@@ -73,22 +78,18 @@ namespace _Scripts.Slot
                     armySlots[index - 1].SetUnit(UnitType.BigWarriorLeft);
                     armySlots[index].SetUnit(UnitType.BigWarriorRight);
                     return;
-                    //select na index -1 ?
-                    //armySlots[index -1].OnSelect();
                 } 
             }
-            if (!shouldLookOnRight)
+            if (!shouldFirstLookOnRight)
             {
                 freeSlotIndex = LookForFreeSlotOnRight(index);
-            
-                Debug.Log("free index " + freeSlotIndex);
+                
                 if (freeSlotIndex != null)
                 {
                     MoveAllUnitsOnRight(index, (int)freeSlotIndex);
             
                     armySlots[index].SetUnit(UnitType.BigWarriorLeft);
                     armySlots[index+1].SetUnit(UnitType.BigWarriorRight);  
-                    return;
                 }
             }
         }
@@ -97,7 +98,6 @@ namespace _Scripts.Slot
         {
             for (int i = index + 1; i < armySlots.Count; i++)
             {
-                Debug.Log(" szuka po prawo" + i);
                 if (armySlots[i].UnitType == UnitType.None)
                 {
                     return i;
@@ -110,7 +110,6 @@ namespace _Scripts.Slot
         {
             for (int i = index -1; i >= 0; i--)
             {
-                Debug.Log(" szuka po lewo " + i);
                 if (armySlots[i].UnitType == UnitType.None)
                 {
                     return i;
@@ -123,7 +122,6 @@ namespace _Scripts.Slot
         {
             for (int j = freeSlotIndex - 1; j > index; j--)
             {
-                Debug.Log("przesuwa jednostek na " + j);
                 MoveUnitRight(j);
             }
         }
@@ -132,7 +130,6 @@ namespace _Scripts.Slot
         {
             for (int j = freeSlotIndex + 1; j < index; j++)
             {
-                Debug.Log("przesuwa jednostke z " + j);
                 MoveUnitLeft(j);
             }
         }
@@ -165,7 +162,6 @@ namespace _Scripts.Slot
         {
             if (armySlots[index].UnitType == UnitType.SmallWarrior && index < armySlots.Count - 1)
             {
-                Debug.Log("przesuwa na " + (index + 1));
                 armySlots[index].SetUnit(UnitType.None);
                 armySlots[index + 1].SetUnit(UnitType.SmallWarrior);
             } else if (armySlots[index].UnitType == UnitType.BigWarriorLeft && index < armySlots.Count - 2)

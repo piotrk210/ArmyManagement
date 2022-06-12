@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets._Scripts.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,7 +41,6 @@ namespace _Scripts.Slot
         }        
 
         #endregion
-
         
         private void AssignButtonMethods()
         {
@@ -50,7 +50,6 @@ namespace _Scripts.Slot
             switchButton.onClick.AddListener(SwitchUnits);
             creatSmallUnitButton.onClick.AddListener(CreateSmallUnit);
             creatBigUnitButton.onClick.AddListener(CreateBigUnit);
-
         }
     
         private void UnAssignButtonMethods()
@@ -63,16 +62,14 @@ namespace _Scripts.Slot
             creatBigUnitButton.onClick.RemoveAllListeners();
         }
 
+        #region ButtonsMethods
+
         private void DeleteUnit()
         {
             foreach (var slotIndex in selectedSlots)
             {
                 if (slotIndex == null) continue;
-                if (Slots[(int) slotIndex].UnitType == UnitType.BigWarriorLeft)
-                {
-                    Slots[(int) slotIndex + 1].SetUnit(UnitType.None);
-                }
-                Slots[(int) slotIndex].SetUnit(UnitType.None);
+                AddNoneUnitInProperlyArmy((int)slotIndex);
             }
             DeselectAllSlots();
         }
@@ -92,40 +89,66 @@ namespace _Scripts.Slot
                     secondUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex == 2 &&
                     !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex))
                 {
-                    Debug.Log("wyjątek spamuje dużą jednostkę na lewo");
                     isStartLookingPlaceOnRight = false;
                 }
                 if (IsUnitBigAndOnLastArmySlot(firstUnitIndex))
                 {
                     firstUnitIndex++;
-                    Debug.Log("wyjątek mała jednostak na prawą częśc duzej");
+
                 }
                 if(IsUnitBigAndOnLastArmySlot(secondUnitIndex)) 
                 {
                     secondUnitIndex++;
-                    Debug.Log("wyjątek mała jednostak na prawą częśc duzej");
                 }
                 if (secondUnitType == UnitType.BigWarriorLeft)
                 {
-                    if (secondUnitIndex < ArmyManager.SlotsNumber)  topArmyManager.TryAddSmallUnit(secondUnitIndex);
-                    else bottomArmyManager.TryAddSmallUnit(secondUnitIndex);
+                    AddSmallUnitInProperlyArmy(secondUnitIndex);
                         
-                    if (firstUnitIndex < ArmyManager.SlotsNumber)  topArmyManager.TryAddBigUnit(firstUnitIndex, isStartLookingPlaceOnRight);
-                    else bottomArmyManager.TryAddBigUnit(firstUnitIndex- ArmyManager.SlotsNumber, isStartLookingPlaceOnRight);
+                    AddBigUnitInProperlyArmy(firstUnitIndex, isStartLookingPlaceOnRight);
                 }
                 else
                 {
-                    if (firstUnitIndex < ArmyManager.SlotsNumber)  topArmyManager.TryAddSmallUnit(firstUnitIndex);
-                    else bottomArmyManager.TryAddSmallUnit(firstUnitIndex);
+                    AddSmallUnitInProperlyArmy(firstUnitIndex);
                         
-                    if (secondUnitIndex < ArmyManager.SlotsNumber)  topArmyManager.TryAddBigUnit(secondUnitIndex, isStartLookingPlaceOnRight);
-                    else bottomArmyManager.TryAddBigUnit(secondUnitIndex- ArmyManager.SlotsNumber, isStartLookingPlaceOnRight);
+                    AddBigUnitInProperlyArmy(secondUnitIndex, isStartLookingPlaceOnRight);
                 }
             }
-            
-            
             DeselectAllSlots();
         }
+
+        private void CreateSmallUnit()
+        {
+            foreach (var slotIndex in selectedSlots)
+            {
+                if (slotIndex == null) continue;
+                AddSmallUnitInProperlyArmy((int)slotIndex);
+            }
+            DeselectAllSlots();
+        }
+
+        private void CreateBigUnit()
+        {
+            if (selectedSlots[0] == selectedSlots[1] - 1)
+            {
+                for (int i = selectedSlots.Length-1; i >= 0; i--)
+                {
+                    if (selectedSlots[i] == null) continue;
+                    AddBigUnitInProperlyArmy((int)selectedSlots[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < selectedSlots.Length; i++)
+                {
+                    if (selectedSlots[i] == null || Slots[(int) selectedSlots[i]].UnitType == UnitType.BigWarriorLeft) 
+                        continue;
+                    AddBigUnitInProperlyArmy((int)selectedSlots[i]);
+                }    
+            }
+            DeselectAllSlots();
+        }
+
+        #endregion
 
         
         private bool IsUnitsInOtherArmy(int firstIndex, int secondIndex)
@@ -142,42 +165,6 @@ namespace _Scripts.Slot
             return false;
         }
 
-        private void CreateSmallUnit()
-        {
-            foreach (var slotIndex in selectedSlots)
-            {
-                if (slotIndex == null) continue;
-                if(Slots[(int) slotIndex].UnitType == UnitType.BigWarriorLeft) Slots[(int) slotIndex + 1].SetUnit(UnitType.None);
-                Slots[(int) slotIndex].SetUnit(UnitType.SmallWarrior);
-            }
-            DeselectAllSlots();
-        }
-
-        private void CreateBigUnit()
-        {
-            if (selectedSlots[0] == selectedSlots[1] - 1)
-            {
-                Debug.Log("sloty obok siebie w złej kolejności");
-                for (int i = selectedSlots.Length-1; i >= 0; i--)
-                {
-                    if (selectedSlots[i] == null) continue;
-                    if (selectedSlots[i] < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit((int) selectedSlots[i]);
-                    else bottomArmyManager.TryAddBigUnit((int) selectedSlots[i] - ArmyManager.SlotsNumber);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < selectedSlots.Length; i++)
-                {
-                    if (selectedSlots[i] == null || Slots[(int) selectedSlots[i]].UnitType == UnitType.BigWarriorLeft) continue;
-                    if (selectedSlots[i] < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit((int) selectedSlots[i]);
-                    else bottomArmyManager.TryAddBigUnit((int) selectedSlots[i] - ArmyManager.SlotsNumber);
-                }    
-            }
-            DeselectAllSlots();
-        }
-        
-
         #region SelectMethods
 
         private void SelectMethod(int index)
@@ -193,13 +180,12 @@ namespace _Scripts.Slot
             }
             else
             {
-                if (selectedSlots[0] != null) Slots[(int)selectedSlots[0]].OnDeselect();
+                if (selectedSlots[0] != null) Slots[(int)selectedSlots[0]].Deselect();
                 selectedSlots[0] = selectedSlots[1];
                 selectedSlots[1] = index;
             }
 
             switchButton.interactable = IsSwitchPossible();
-            //Debug.Log("Select First: "+ selectedSlots[0] + " Second: "+ selectedSlots[1]);
         }
         
         private void DeselectMethod(int index)
@@ -215,7 +201,6 @@ namespace _Scripts.Slot
                 selectedSlots[1] = null;
             }
             switchButton.interactable = IsSwitchPossible();
-            //Debug.Log("Deselect First: "+ selectedSlots[0] + " Second: "+ selectedSlots[1]);
         }
         
         private static int SelectedSlotsNumber()
@@ -235,7 +220,7 @@ namespace _Scripts.Slot
             {
                 if (selectedSlots[i] != null)
                 {
-                    Slots[(int)selectedSlots[i]].OnDeselect();
+                    Slots[(int)selectedSlots[i]].Deselect();
                 }
             }
             switchButton.interactable = IsSwitchPossible();
@@ -243,10 +228,22 @@ namespace _Scripts.Slot
         
         #endregion
 
-        private void AddBigUnitInProperlyArmy(int index)
+        private void AddBigUnitInProperlyArmy(int index, bool shouldLookForOnRight = true)
         {
-            if (index < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit(index);
-            else bottomArmyManager.TryAddBigUnit(index - ArmyManager.SlotsNumber);
+            if (index < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit(index, shouldLookForOnRight );
+            else bottomArmyManager.TryAddBigUnit(index - ArmyManager.SlotsNumber, shouldLookForOnRight);
+        }
+        
+        private void AddSmallUnitInProperlyArmy(int index)
+        {
+            if (index < ArmyManager.SlotsNumber)  topArmyManager.TryAddSmallUnit(index);
+            else bottomArmyManager.TryAddSmallUnit(index - ArmyManager.SlotsNumber);
+        }
+        
+        private void AddNoneUnitInProperlyArmy(int index)
+        {
+            if (index < ArmyManager.SlotsNumber)  topArmyManager.TryAddNoneUnit(index);
+            else bottomArmyManager.TryAddNoneUnit(index - ArmyManager.SlotsNumber);
         }
         
         private bool IsSwitchPossible()

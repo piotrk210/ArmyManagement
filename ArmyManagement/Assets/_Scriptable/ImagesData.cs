@@ -1,16 +1,17 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Assets._Scripts.Data;
 using UnityEngine;
 
-
-[CreateAssetMenu(fileName = "ImageData", menuName = "ScriptableObjects/ImageData", order = 1)]
-public class ImagesData : ScriptableObject
+namespace _Scriptable
 {
-    [SerializeField] private List<Texture> Sprites = new List<Texture>();
-
-    public Texture GetSprite(UnitType unitType)
+    [CreateAssetMenu(fileName = "ImageData", menuName = "ScriptableObjects/ImageData", order = 1)]
+    public class ImagesData : ScriptableObject
     {
-        return Sprites[(int) unitType];
+        [SerializeField] private List<Texture> Sprites = new List<Texture>();
+
+        public Texture GetSprite(UnitType unitType)
+        {
+            return Sprites[(int) unitType];
+        }
     }
 }

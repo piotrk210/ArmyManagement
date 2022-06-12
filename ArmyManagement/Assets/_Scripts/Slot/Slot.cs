@@ -1,3 +1,5 @@
+using _Scriptable;
+using Assets._Scripts.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -30,8 +32,7 @@ namespace _Scripts.Slot
         {
             if(this.unitType == unitType) return;
             
-            ///////////////////////// CHECK IS THAT INTERACTION BLOCKER WORKS!!!!!!!!!
-            if(unitType == UnitType.BigWarriorRight && IsSelected) OnDeselect();
+            if(unitType == UnitType.BigWarriorRight && IsSelected) Deselect();
 
             this.unitType = unitType;
             unitIconImage.texture = images.GetSprite(unitType);
@@ -40,18 +41,18 @@ namespace _Scripts.Slot
         public void OnPointerClick(PointerEventData eventData)
         {
             if(unitType == UnitType.BigWarriorRight) return;
-            if(!IsSelected) OnSelect();
-            else OnDeselect();
+            if(!IsSelected) Select();
+            else Deselect();
         }
 
-        private void OnSelect()
+        private void Select()
         {
             borderImage.color = selectedColor;
             IsSelected = true;
             SlotManager.OnSelectAction.Invoke(slotIndex);
         }
 
-        public void OnDeselect()
+        public void Deselect()
         {
             borderImage.color = unselectedColor;
             IsSelected = false;
