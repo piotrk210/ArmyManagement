@@ -100,6 +100,15 @@ namespace _Scripts.Slot
                 {
                     secondUnitIndex++;
                 }
+
+                if (IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
+                    firstUnitType == UnitType.SmallWarrior && firstUnitIndex is 1 or 7 ||
+                    IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
+                    secondUnitType == UnitType.SmallWarrior && secondUnitIndex is 1 or 7)
+                {
+                    isStartLookingPlaceOnRight = false;
+                }
+                
                 if (secondUnitType == UnitType.BigWarriorLeft)
                 {
                     AddSmallUnitInProperlyArmy(secondUnitIndex);
