@@ -1,4 +1,5 @@
-using System;
+using _Scriptable;
+using Assets._Scripts.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,14 +9,14 @@ namespace _Scripts.Slot
     public class Slot : MonoBehaviour, IPointerClickHandler
     {
         public UnitType UnitType => unitType;
-        public Army Army { get; set; }
+        
         [SerializeField] private UnitType unitType = UnitType.None;
-        [SerializeField] private Army army;
+
         [SerializeField] private RawImage borderImage;
         [SerializeField] private RawImage unitIconImage;
         [SerializeField] private ImagesData images;
-        public int slotIndex;
-        public bool isSelected;
+        private int slotIndex;
+        public bool IsSelected;
 
         private readonly Color selectedColor = Color.red;
         private readonly Color unselectedColor = Color.white;
@@ -31,8 +32,7 @@ namespace _Scripts.Slot
         {
             if(this.unitType == unitType) return;
             
-            ///////////////////////// CHECK IS THAT INTERACTION BLOCKER WORKS!!!!!!!!!
-            if(unitType == UnitType.BigWarriorRight && isSelected) OnDeselect();
+            if(unitType == UnitType.BigWarriorRight && IsSelected) Deselect();
 
             this.unitType = unitType;
             unitIconImage.texture = images.GetSprite(unitType);
@@ -41,21 +41,21 @@ namespace _Scripts.Slot
         public void OnPointerClick(PointerEventData eventData)
         {
             if(unitType == UnitType.BigWarriorRight) return;
-            if(!isSelected) OnSelect();
-            else OnDeselect();
+            if(!IsSelected) Select();
+            else Deselect();
         }
 
-        private void OnSelect()
+        private void Select()
         {
             borderImage.color = selectedColor;
-            isSelected = true;
+            IsSelected = true;
             SlotManager.OnSelectAction.Invoke(slotIndex);
         }
 
-        public void OnDeselect()
+        public void Deselect()
         {
             borderImage.color = unselectedColor;
-            isSelected = false;
+            IsSelected = false;
             SlotManager.OnDeselectAction.Invoke(slotIndex);
         }
     }

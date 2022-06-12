@@ -1,15 +1,12 @@
-public enum UnitType
+namespace Assets._Scripts.Data
 {
-    SmallWarrior,
-    BigWarriorRight,
-    BigWarriorLeft,
-    None,
+    public enum UnitType
+    {
+        SmallWarrior,
+        BigWarriorRight,
+        BigWarriorLeft,
+        None,
     
-    Count
-}
-
-public enum Army
-{
-    Top,
-    Bottom
+        Count
+    }
 }

@@ -191,7 +191,6 @@ MonoBehaviour:
   switchButton: {fileID: 3918592134377084865}
   creatSmallUnitButton: {fileID: 3918592134579481462}
   creatBigUnitButton: {fileID: 3918592133576815693}
-  currentSelectedSlotsNumber: 0
 --- !u!1001 &18378128994613666
 PrefabInstance:
   m_ObjectHideFlags: 0
