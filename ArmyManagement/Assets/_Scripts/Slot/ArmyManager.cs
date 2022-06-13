@@ -57,7 +57,6 @@ namespace _Scripts.Slot
             int? freeSlotIndex;
             if (!ignoreTheNearest && TryAddUnitInNearestSlot(index, shouldFirstLookOnRight))
             {
-                Debug.Log("znalazło obok");
                 return;
             }
             

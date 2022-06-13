@@ -86,13 +86,12 @@ namespace _Scripts.Slot
 
             if (firstUnitType != secondUnitType)
             {
-                if (firstUnitType == UnitType.BigWarriorLeft && secondUnitIndex - firstUnitIndex == 2 &&
+                if (firstUnitType == UnitType.BigWarriorLeft && secondUnitIndex - firstUnitIndex is 2 or 3 &&
                     !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex)||
-                    secondUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex == 2 &&
+                    secondUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex is 2 or 3 &&
                     !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) 
                 )
                 {
-                    Debug.Log("wyjątek");
                     isStartLookingPlaceOnRight = false;
                 }
 
@@ -102,27 +101,18 @@ namespace _Scripts.Slot
                     !IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex))
                 {
                     ignoreTheNearest = true;
-                    Debug.Log("zmusza do szukania po prawo");
                 }
-                if (isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(firstUnitIndex) && !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex))
+                if (isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(firstUnitIndex) && 
+                    !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) && firstUnitIndex > secondUnitIndex)
                 {
                     firstUnitIndex++;
 
                 }
-                if(isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(secondUnitIndex) && !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex)) 
+                if(isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(secondUnitIndex) && 
+                   !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) && secondUnitIndex > firstUnitIndex) 
                 {
                     secondUnitIndex++;
                 }
-
-                // if (IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
-                //     firstUnitType == UnitType.SmallWarrior && firstUnitIndex is 1 or 7 ||
-                //     IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
-                //     secondUnitType == UnitType.SmallWarrior && secondUnitIndex is 1 or 7)
-                // {
-                //     Debug.Log("wyjątek");
-                //     isStartLookingPlaceOnRight = false;
-                // }
-                
                 if (secondUnitType == UnitType.BigWarriorLeft)
                 {
                     AddSmallUnitInProperlyArmy(secondUnitIndex);
