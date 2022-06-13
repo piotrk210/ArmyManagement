@@ -26,13 +26,13 @@ namespace _Scripts.Slot
             }
         }
 
-        public void TryAddBigUnit(int index, bool shouldLookOnRight = true)
+        public void TryAddBigUnit(int index, bool shouldLookOnRight = true, bool ignoreTheNearest = false)
         {
             if(armySlots[index].UnitType == UnitType.None && !IsAtLeastSlotFree(2) ||
             armySlots[index].UnitType == UnitType.SmallWarrior && !IsAtLeastSlotFree(1) ||
             armySlots[index].UnitType == UnitType.BigWarriorLeft) return;
             
-            SlideBigUnitApart(index, shouldLookOnRight);
+            SlideBigUnitApart(index, shouldLookOnRight, ignoreTheNearest);
         }
         
         public void TryAddSmallUnit(int index)
@@ -52,9 +52,15 @@ namespace _Scripts.Slot
             armySlots[index].SetUnit(UnitType.None);
         }
 
-        private void SlideBigUnitApart(int index, bool shouldFirstLookOnRight = true)
+        private void SlideBigUnitApart(int index, bool shouldFirstLookOnRight = true, bool ignoreTheNearest = false)
         {
             int? freeSlotIndex;
+            if (!ignoreTheNearest && TryAddUnitInNearestSlot(index, shouldFirstLookOnRight))
+            {
+                Debug.Log("znalazło obok");
+                return;
+            }
+            
             if (shouldFirstLookOnRight)
             {
                 freeSlotIndex = LookForFreeSlotOnRight(index);
@@ -63,8 +69,7 @@ namespace _Scripts.Slot
                 {
                     MoveAllUnitsOnRight(index, (int)freeSlotIndex);
             
-                    armySlots[index].SetUnit(UnitType.BigWarriorLeft);
-                    armySlots[index+1].SetUnit(UnitType.BigWarriorRight); 
+                    JustAddBigUnit(index);  
                     return;
                 }
             }
@@ -75,8 +80,7 @@ namespace _Scripts.Slot
                 {
                     MoveAllUnitsOnLeft(index, (int)freeSlotIndex);
             
-                    armySlots[index - 1].SetUnit(UnitType.BigWarriorLeft);
-                    armySlots[index].SetUnit(UnitType.BigWarriorRight);
+                    JustAddBigUnit(index - 1); 
                     return;
                 } 
             }
@@ -88,10 +92,43 @@ namespace _Scripts.Slot
                 {
                     MoveAllUnitsOnRight(index, (int)freeSlotIndex);
             
-                    armySlots[index].SetUnit(UnitType.BigWarriorLeft);
-                    armySlots[index+1].SetUnit(UnitType.BigWarriorRight);  
+                    JustAddBigUnit(index); 
                 }
             }
+        }
+
+
+        private bool TryAddUnitInNearestSlot(int index, bool shouldFirstLookOnRight)
+        {
+            if (shouldFirstLookOnRight)
+            {
+                if (index < SlotsNumber - 1 && armySlots[index + 1].UnitType == UnitType.None)
+                {
+                    JustAddBigUnit(index); 
+                    return true;
+                }     
+            }
+            if (index > 0 && armySlots[index - 1].UnitType == UnitType.None)
+            {
+                JustAddBigUnit(index -1); 
+                return true;
+            }
+
+            if (!shouldFirstLookOnRight)
+            {
+                if (index < SlotsNumber - 1 && armySlots[index + 1].UnitType == UnitType.None)
+                {
+                    JustAddBigUnit(index); 
+                    return true;
+                } 
+            }
+            return false;
+        }
+
+        private void JustAddBigUnit(int index)
+        {
+            armySlots[index].SetUnit(UnitType.BigWarriorLeft);
+            armySlots[index+1].SetUnit(UnitType.BigWarriorRight); 
         }
 
         private int? LookForFreeSlotOnRight(int index)
