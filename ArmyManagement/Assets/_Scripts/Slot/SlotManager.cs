@@ -81,45 +81,49 @@ namespace _Scripts.Slot
             UnitType firstUnitType = Slots[(int) selectedSlots[0]].UnitType;
             UnitType secondUnitType = Slots[(int) selectedSlots[1]].UnitType;
             bool isStartLookingPlaceOnRight = true;
+            bool ignoreTheNearest = false;
+
 
             if (firstUnitType != secondUnitType)
             {
-                if (firstUnitType == UnitType.BigWarriorLeft && secondUnitIndex - firstUnitIndex == 2 &&
+                if (firstUnitType == UnitType.BigWarriorLeft && secondUnitIndex - firstUnitIndex is 2 or 3 &&
                     !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex)||
-                    secondUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex == 2 &&
-                    !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex))
+                    secondUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex is 2 or 3 &&
+                    !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) 
+                )
                 {
                     isStartLookingPlaceOnRight = false;
                 }
-                if (IsUnitBigAndOnLastArmySlot(firstUnitIndex))
+
+                if (secondUnitType == UnitType.BigWarriorLeft && secondUnitIndex - firstUnitIndex == 1 &&
+                    !IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) ||
+                    firstUnitType == UnitType.BigWarriorLeft && firstUnitIndex - secondUnitIndex == 1 &&
+                    !IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex))
+                {
+                    ignoreTheNearest = true;
+                }
+                if (isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(firstUnitIndex) && 
+                    !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) && firstUnitIndex > secondUnitIndex)
                 {
                     firstUnitIndex++;
 
                 }
-                if(IsUnitBigAndOnLastArmySlot(secondUnitIndex)) 
+                if(isStartLookingPlaceOnRight && IsUnitBigAndOnLastArmySlot(secondUnitIndex) && 
+                   !IsUnitsInOtherArmy(firstUnitIndex,secondUnitIndex) && secondUnitIndex > firstUnitIndex) 
                 {
                     secondUnitIndex++;
                 }
-
-                if (IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
-                    firstUnitType == UnitType.SmallWarrior && firstUnitIndex is 1 or 7 ||
-                    IsUnitsInOtherArmy(firstUnitIndex, secondUnitIndex) &&
-                    secondUnitType == UnitType.SmallWarrior && secondUnitIndex is 1 or 7)
-                {
-                    isStartLookingPlaceOnRight = false;
-                }
-                
                 if (secondUnitType == UnitType.BigWarriorLeft)
                 {
                     AddSmallUnitInProperlyArmy(secondUnitIndex);
                         
-                    AddBigUnitInProperlyArmy(firstUnitIndex, isStartLookingPlaceOnRight);
+                    AddBigUnitInProperlyArmy(firstUnitIndex, isStartLookingPlaceOnRight, ignoreTheNearest);
                 }
                 else
                 {
                     AddSmallUnitInProperlyArmy(firstUnitIndex);
                         
-                    AddBigUnitInProperlyArmy(secondUnitIndex, isStartLookingPlaceOnRight);
+                    AddBigUnitInProperlyArmy(secondUnitIndex, isStartLookingPlaceOnRight, ignoreTheNearest);
                 }
             }
             DeselectAllSlots();
@@ -169,8 +173,9 @@ namespace _Scripts.Slot
 
         private bool IsUnitBigAndOnLastArmySlot(int index)
         {
-            if (Slots[index].UnitType == UnitType.BigWarriorLeft && index == ArmyManager.SlotsNumber - 2 ||
-                Slots[index].UnitType == UnitType.BigWarriorLeft && index == Slots.Count - 2) return true;
+            if (Slots[index].UnitType == UnitType.BigWarriorLeft && index is ArmyManager.SlotsNumber - 2 or 
+                ArmyManager.SlotsNumber - 3 or ArmyManager.SlotsNumber - 4 or ArmyManager.SlotsNumber * 2 - 2 
+                or ArmyManager.SlotsNumber * 2 - 3 or ArmyManager.SlotsNumber * 2 - 4 ) return true;
             return false;
         }
 
@@ -237,10 +242,10 @@ namespace _Scripts.Slot
         
         #endregion
 
-        private void AddBigUnitInProperlyArmy(int index, bool shouldLookForOnRight = true)
+        private void AddBigUnitInProperlyArmy(int index, bool shouldLookForOnRight = true, bool ignoreTheNearest = false)
         {
-            if (index < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit(index, shouldLookForOnRight );
-            else bottomArmyManager.TryAddBigUnit(index - ArmyManager.SlotsNumber, shouldLookForOnRight);
+            if (index < ArmyManager.SlotsNumber) topArmyManager.TryAddBigUnit(index, shouldLookForOnRight, ignoreTheNearest );
+            else bottomArmyManager.TryAddBigUnit(index - ArmyManager.SlotsNumber, shouldLookForOnRight, ignoreTheNearest);
         }
         
         private void AddSmallUnitInProperlyArmy(int index)
