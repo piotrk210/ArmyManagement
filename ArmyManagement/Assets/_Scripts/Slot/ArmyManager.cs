@@ -189,8 +189,7 @@ namespace _Scripts.Slot
             } else if (armySlots[index].UnitType == UnitType.BigWarriorRight && index >= 2)
             {
                 armySlots[index].SetUnit(UnitType.None);
-                armySlots[index - 2].SetUnit(UnitType.BigWarriorLeft);
-                armySlots[index - 1].SetUnit(UnitType.BigWarriorRight);
+                JustAddBigUnit(index - 2);
             }  
         }
 
@@ -203,8 +202,7 @@ namespace _Scripts.Slot
             } else if (armySlots[index].UnitType == UnitType.BigWarriorLeft && index < armySlots.Count - 2)
             {
                 armySlots[index].SetUnit(UnitType.None);
-                armySlots[index + 1].SetUnit(UnitType.BigWarriorLeft);
-                armySlots[index + 2].SetUnit(UnitType.BigWarriorRight);
+                JustAddBigUnit(index + 1);
             }            
         }
     }
