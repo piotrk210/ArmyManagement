@@ -141,22 +141,22 @@ namespace _Scripts.Slot
 
         private void CreateBigUnit()
         {
-            if (selectedSlots[0] == selectedSlots[1] - 1)
-            {
-                for (int i = selectedSlots.Length-1; i >= 0; i--)
-                {
-                    if (selectedSlots[i] == null) continue;
-                    AddBigUnitInProperlyArmy((int)selectedSlots[i]);
-                }
-            }
-            else
+            if (selectedSlots[1] == selectedSlots[0] - 1)
             {
                 for (int i = 0; i < selectedSlots.Length; i++)
                 {
                     if (selectedSlots[i] == null || Slots[(int) selectedSlots[i]].UnitType == UnitType.BigWarriorLeft) 
                         continue;
                     AddBigUnitInProperlyArmy((int)selectedSlots[i]);
-                }    
+                }
+            }
+            else
+            {
+                for (int i = selectedSlots.Length-1; i >= 0; i--)
+                {
+                    if (selectedSlots[i] == null) continue;
+                    AddBigUnitInProperlyArmy((int)selectedSlots[i]);
+                }
             }
             DeselectAllSlots();
         }
